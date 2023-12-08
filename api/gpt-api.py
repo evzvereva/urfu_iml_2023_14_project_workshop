@@ -1,5 +1,6 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi import FastAPI, Request, status
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 import domain
 import service
@@ -56,16 +57,19 @@ async def chat(request: domain.Request) -> JSONResponse:
     )
 
 @app.exception_handler(RequestValidationError)
-async def exceptionHandler(request, e: Exception):
+async def exceptionHandler(request: Request, exc: RequestValidationError):
     """
     Exception handler for RequestValidationError.
 
     Args:
         request: The request object.
-        e (Exception): The exception object.
+        exc (RequestValidationError): The exception object.
 
     Returns:
         None
     """
-    logger.error(f'exception: {str(e)}')
-    return PlainTextResponse('RequestValidationError', status_code=400)
+    logger.error(f'exception: {str(exc)}; body: {exc.body}')
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=jsonable_encoder({"detail": exc.errors(), "body": exc.body}),
+    )
