@@ -35,20 +35,24 @@ async def chat(request: domain.Request) -> JSONResponse:
     if service.check_token(request.api_key) == False:
         logger.error(f'Authentication failed')
         return JSONResponse(
-            domain.Error(error='authentication failed').model_dump(),
-            status_code=401
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=domain.Error(error='authentication failed').model_dump()
         )
 
     answer = ''
 
-    try:
-        answer = yandex_gpt.chat(request)
-        logger.info(f'YGPT: request: {request}')
-    except Exception as e:
-        logger.error(f'YGPT: {str(e)}')
-
+    if request.service == 'gpt4all':
         answer = gpt4all.chat(request)
-        logger.info(f'GPT4all: request: {request}')
+        logger.info(f'GPT4all: request: {request}')        
+    else:
+        try:
+            answer = yandex_gpt.chat(request)
+            logger.info(f'YGPT: request: {request}')
+        except Exception as e:
+            logger.error(f'YGPT: {str(e)}')
+
+            answer = gpt4all.chat(request)
+            logger.info(f'GPT4all: request: {request}')
 
     return JSONResponse(
         domain.Response(answer=answer).model_dump(),

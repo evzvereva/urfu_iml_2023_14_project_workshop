@@ -35,11 +35,14 @@ def chat(request: domain.Request) -> str:
     logger.info(request.prompt)
 
     settings = service.load_settings()
+
     yandex_gpt = settings.get('yandexGPT')
     if yandex_gpt is not None:
         url = yandex_gpt.get('url')
         api_key = yandex_gpt.get('api_key')
         folder = yandex_gpt.get('folder')
+        if yandex_gpt.get('system_template') is not None:
+            system_template = yandex_gpt.get('system_template')
 
         headers = {
             'Authorization': f'Api-Key {api_key}',
@@ -49,8 +52,8 @@ def chat(request: domain.Request) -> str:
 
         completionOptions = YGPTCompletionOptions(
             stream=False,
-            temperature=0,
-            maxTokens=500
+            temperature=0.3,
+            maxTokens=912
         )
 
         messages = []

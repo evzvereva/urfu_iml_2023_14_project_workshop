@@ -28,10 +28,12 @@ class Request(BaseModel):
         api_key (str): The API key used for authentication.
         prompt (str): The prompt for the chat session.
         history (list[Message]): The list of previous messages in the conversation.
+        service (str): Service field.
     """
     api_key: str
     prompt: str
     history: list[Message]
+    service: str | None = None
 
 class Response(BaseModel):
     """

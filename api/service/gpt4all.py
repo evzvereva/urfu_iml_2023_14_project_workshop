@@ -4,17 +4,32 @@ import service
 
 logger = service.getLogger(__name__)
 
-gpt4all_path = './models'
-gpt4all_model = 'mistral-7b-openorca.Q4_0.gguf'
-
 system_template = 'Ты городской гид по городу Екатерибург. \
 Отвечаешь на вопросы только про город Екатеринбург и только на русском языке.'
 
-model = GPT4All(
-    model_name=gpt4all_model,
-    model_path=gpt4all_path,
-    device='gpu'
-)
+model = None
+settings = service.load_settings()
+gpt4all_settings = settings.get('GPT4All')
+
+def init_model() -> None:
+    """
+    GPT4All model initialization.
+    """
+    global model, system_template, gpt4all_settings
+
+    if model is None:
+        gpt4all_path = gpt4all_settings.get('model_path')
+        gpt4all_model = gpt4all_settings.get('model_name')
+
+        if gpt4all_settings.get('system_template') is not None:
+            system_template = gpt4all_settings.get('system_template')
+
+        model = GPT4All(
+            model_name=gpt4all_model,
+            model_path=gpt4all_path,
+            device=gpt4all_settings.get('device'),
+            allow_download=False
+        )
 
 def chat(request: domain.Request) -> str:
     """
@@ -26,11 +41,19 @@ def chat(request: domain.Request) -> str:
     Returns:
         str: The response to the request.
     """
+    global model, gpt4all_settings
+
     logger.info(request.prompt)
+
+    init_model()
 
     answer = ''
 
+    # default prompt template
     prompt_template = '### Human: \n{0}\n### Assistant:\n'
+    
+    if gpt4all_settings.get('prompt_template') is not None:
+        prompt_template = gpt4all_settings.get('prompt_template')
 
     with model.chat_session(
         system_prompt=system_template,
@@ -48,8 +71,8 @@ def chat(request: domain.Request) -> str:
 
         answer = model.generate(
             request.prompt,
-            max_tokens=500,
-            temp=0.5,
+            max_tokens=912,
+            temp=0.3,
             top_k=40,
             top_p=0.9,
             repeat_penalty=1.1,
