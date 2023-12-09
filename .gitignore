@@ -2,4 +2,4 @@
 __pycache__/
 settings.yaml
 .idea/
-.streamlit/secrets.toml
+secrets.toml
