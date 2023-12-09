@@ -6,10 +6,8 @@ def api_login():
     настройками для подключения к API GPT бота
     """
     api_json = {"yandexGPT": {
-        "api_key": "",
+        "url": st.secrets["url"],
+        "api_key": st.secrets["api_key"],
         "prompt": "",
         "history": []}}
-
-    api_json["yandexGPT"]["api_key"] = st.secrets["api_key"]
-    api_json["yandexGPT"]["url"] = st.secrets["url"]
     return api_json
