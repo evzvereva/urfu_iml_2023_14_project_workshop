@@ -51,4 +51,5 @@ def add_logo():
         unsafe_allow_html=True,
     )
 
+
 add_logo()
