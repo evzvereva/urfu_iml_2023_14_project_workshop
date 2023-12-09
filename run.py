@@ -1,19 +1,41 @@
 import streamlit as st
 from PIL import Image
-from st_pages import Page, show_pages, add_page_title
+from pathlib import Path
+from streamlit.source_util import get_pages as st_get_pages
+from streamlit.source_util import _on_pages_changed as st_on_pages_changed
 
-# Настройка отображения страницы:
-# st.set_page_config(page_title="О Екатеринбурге", page_icon="🏙️", layout="wide")
+# Заголовок страницы
+st.title("O Екатеринбурге")
 
-# Вызов функции из библиотеки для настройки страницы:
-add_page_title()
+def st_page_rename(pages_name: dict[str, str]) -> None:
+    """
+    Переименование страниц в меню. На вход функция принимает название файла и новое название в веб-интерфейсе
+    """
+    pages = st_get_pages("")
+    for page_k, page_v in pages.items():
+        script_path = Path(page_v["script_path"])
 
-# Переименование отображения страниц в веб-интерфейсе:
-show_pages([Page("run.py", "О Екатеринбурге"),
-            Page("urfu_iml_2023_14_project_workshop/pages/page_a_chat.py", "Бот-помощник"),
-            Page("pages/page_a_project.py", "О проекте"),
-            Page("pages/page_a_team.py", "Команда"),
-            Page("pages/page_help.py", "Помощь")])
+        for page_name_k, page_name_v in pages_name.items():
+            name_path = Path(page_name_k)
+
+            if Path.samefile(script_path, name_path):
+                page_v["page_name"] = page_name_v
+
+    st_on_pages_changed.send()
+
+def main_app() -> None:
+    """
+    Запуск основного приложения
+    """
+
+    st_page_rename({"run.py": "О Екатеринбурге",
+                    "pages/page_a_chat.py": "Бот-помощник",
+                    "pages/page_a_project.py": "О проекте",
+                    "pages/page_a_team.py": "Команда",
+                    "pages/page_help.py": "Помощь"})
+
+
+main_app()
 
 # Открываем изображение и отображаем в веб-интерфейсе:
 img = Image.open("image_and_history_city/ekaterinburg.jpeg")
