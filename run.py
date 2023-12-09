@@ -3,7 +3,7 @@ from PIL import Image
 from st_pages import Page, show_pages, add_page_title
 
 # Настройка отображения страницы:
-st.set_page_config(page_title="О Екатеринбурге", page_icon="🏙️", layout="wide")
+# st.set_page_config(page_title="О Екатеринбурге", page_icon="🏙️", layout="wide")
 
 # Вызов функции из библиотеки для настройки страницы:
 add_page_title()
