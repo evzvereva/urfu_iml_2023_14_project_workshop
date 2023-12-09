@@ -1,3 +1,4 @@
 ### Python template
 __pycache__/
 settings.yaml
+.idea/
