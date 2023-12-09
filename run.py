@@ -10,7 +10,7 @@ add_page_title()
 
 # Переименование отображения страниц в веб-интерфейсе:
 show_pages([Page("run.py", "О Екатеринбурге"),
-            Page("pages/page_a_chat.py", "Бот-помощник"),
+            Page("urfu_iml_2023_14_project_workshop/pages/page_a_chat.py", "Бот-помощник"),
             Page("pages/page_a_project.py", "О проекте"),
             Page("pages/page_a_team.py", "Команда"),
             Page("pages/page_help.py", "Помощь")])
