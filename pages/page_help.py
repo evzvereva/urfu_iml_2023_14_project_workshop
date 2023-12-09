@@ -2,7 +2,7 @@ import streamlit as st
 from run import add_logo # импорт функции для загрузки изображения и названия веб-интерфейса
 
 # Настройка отображения страницы:
-# st.set_page_config(page_title="Помощь", page_icon=":books:")
+st.set_page_config(page_title="Помощь", page_icon=":books:")
 
 # Вызов функции для агрузки изображения и названия веб-интерфейса в меню
 add_logo()
