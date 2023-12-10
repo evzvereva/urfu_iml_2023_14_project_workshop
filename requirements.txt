@@ -1,0 +1,5 @@
+streamlit==1.29.0
+pillow==10.1.0
+st_pages==0.4.5
+requests==2.31.0
+pyyaml==6.0.1
