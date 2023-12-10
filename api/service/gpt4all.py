@@ -62,8 +62,10 @@ def chat(request: domain.Request) -> str:
 
         for message in request.history:
             model.current_chat_session.append(
-                {'role': message.role.value,
-                'content': message.content}
+                {
+                    'role': message.role.value,
+                    'content': message.content
+                }
             )
         
         if len(request.history) > 0:

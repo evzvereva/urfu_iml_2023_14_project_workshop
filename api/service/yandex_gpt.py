@@ -81,7 +81,7 @@ def chat(request: domain.Request) -> str:
         messages.append(
             YGPTMessage(
                 role='user',
-                text=request.prompt
+                text=f'Екатеринбург. {request.prompt}'
             )
         )
 

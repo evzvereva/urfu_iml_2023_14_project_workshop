@@ -2,6 +2,7 @@ api/models/*
 api/logs/*
 secrets.txt
 settings.yaml
+secrets.toml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
