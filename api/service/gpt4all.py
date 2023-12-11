@@ -72,7 +72,7 @@ def chat(request: domain.Request) -> str:
             logger.info(f'Session: {model.current_chat_session}')
 
         answer = model.generate(
-            request.prompt,
+            f'Вопрос про Екатеринбург: {request.prompt}',
             max_tokens=912,
             temp=0.3,
             top_k=40,
