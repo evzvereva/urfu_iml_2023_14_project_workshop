@@ -29,7 +29,7 @@ def team_list(fullname, position, description_task):
         st.write(description_task)
 
 # Вызов функции с передачей параметров:
-team_list("Александр Мальцев", "Fullstack developer",
+team_list("Александр Мулявин", "Fullstack developer",
           "Занимается разработкой и созданием телеграмм-бота, настройкой его пользовательского интерфейса "
           "и интеграцией с API GPT.")
 
