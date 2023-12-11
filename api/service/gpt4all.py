@@ -74,7 +74,7 @@ def chat(request: domain.Request) -> str:
         answer = model.generate(
             f'Вопрос про Екатеринбург: {request.prompt}',
             max_tokens=912,
-            temp=0.3,
+            temp=0.1,
             top_k=40,
             top_p=0.9,
             repeat_penalty=1.1,

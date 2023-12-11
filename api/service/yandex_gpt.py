@@ -52,7 +52,7 @@ def chat(request: domain.Request) -> str:
 
         completionOptions = YGPTCompletionOptions(
             stream=False,
-            temperature=0.3,
+            temperature=0.1,
             maxTokens=912
         )
 
@@ -78,10 +78,15 @@ def chat(request: domain.Request) -> str:
                 )
             )
         
+        if len(request.history) == 0:
+            prompt = f'Вопрос про Екатеринбург: {request.prompt}'
+        else:
+            prompt = request.prompt
+
         messages.append(
             YGPTMessage(
                 role='user',
-                text=f'Вопрос про Екатеринбург: {request.prompt}'
+                text=prompt
             )
         )
 
