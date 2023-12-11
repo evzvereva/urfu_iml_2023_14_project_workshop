@@ -1,10 +1,10 @@
-from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
-from fastapi.exceptions import RequestValidationError
 import domain
 import service
-from service import yandex_gpt, gpt4all
+from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from service import gpt4all, yandex_gpt
 
 logger = service.getLogger(__name__)
 

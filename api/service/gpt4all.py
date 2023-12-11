@@ -1,6 +1,6 @@
-from gpt4all import GPT4All
 import domain
 import service
+from gpt4all import GPT4All
 
 logger = service.getLogger(__name__)
 

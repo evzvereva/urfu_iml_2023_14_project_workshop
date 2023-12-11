@@ -1,6 +1,6 @@
 import domain
-import service
 import requests
+import service
 from pydantic import BaseModel
 
 logger = service.getLogger(__name__)
