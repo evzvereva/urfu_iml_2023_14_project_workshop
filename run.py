@@ -39,7 +39,7 @@ main_app()
 
 # Открываем изображение и отображаем в веб-интерфейсе:
 img = Image.open("image_and_history_city/ekaterinburg.jpeg")
-st.image(img, width=700, caption="Екатеринбург, Россия")
+st.image(img, width=None, caption="Екатеринбург, Россия")
 
 # Чтение файла для дальнейшей загрузки информации о городе Екатеринбурге:
 with open("image_and_history_city/ekaterinburg.txt", "r") as file:
