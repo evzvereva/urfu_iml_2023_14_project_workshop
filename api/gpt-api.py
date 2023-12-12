@@ -1,10 +1,10 @@
-from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
-from fastapi.exceptions import RequestValidationError
 import domain
 import service
-from service import yandex_gpt, gpt4all
+from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from service import ollama, yandex_gpt
 
 logger = service.getLogger(__name__)
 
@@ -41,9 +41,9 @@ async def chat(request: domain.Request) -> JSONResponse:
 
     answer = ''
 
-    if request.service == 'gpt4all':
-        answer = gpt4all.chat(request)
-        logger.info(f'GPT4all: request: {request}')        
+    if request.service == 'ollama':
+        answer = ollama.chat(request)
+        logger.info(f'Ollama: request: {request}')        
     else:
         try:
             answer = yandex_gpt.chat(request)
@@ -51,8 +51,8 @@ async def chat(request: domain.Request) -> JSONResponse:
         except Exception as e:
             logger.error(f'YGPT: {str(e)}')
 
-            answer = gpt4all.chat(request)
-            logger.info(f'GPT4all: request: {request}')
+            answer = ollama.chat(request)
+            logger.info(f'Ollama: request: {request}')
 
     return JSONResponse(
         domain.Response(answer=answer).model_dump(),
