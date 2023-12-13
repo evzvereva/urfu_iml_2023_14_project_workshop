@@ -58,4 +58,5 @@ class Error(BaseModel):
 class EmbeddingRequest(BaseModel):
     """
     """
+    api_key: str
     prompt: str

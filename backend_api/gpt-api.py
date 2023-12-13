@@ -62,12 +62,31 @@ async def chat(request: domain.Request) -> JSONResponse:
     )
 
 @app.post('/embeddings/create')
-async def create_embeddings():
+async def create_embeddings(request: domain.EmbeddingRequest) -> JSONResponse:
+    if service.check_token(request.api_key) == False:
+        logger.error(f'Authentication failed')
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=domain.Error(error='authentication failed').model_dump()
+        )
+    
     embeddings.create_vectorestore()
+    return JSONResponse(status_code=status.HTTP_200_OK, content='')
 
 @app.post('/embeddings/prompt')
-async def chain_prompt(request: domain.EmbeddingRequest) -> str:
-    return embeddings.chain_prompt(request.prompt)
+async def chain_prompt(request: domain.EmbeddingRequest) -> JSONResponse:
+    if service.check_token(request.api_key) == False:
+        logger.error(f'Authentication failed')
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=domain.Error(error='authentication failed').model_dump()
+        )
+    
+    answer = embeddings.chain_prompt(request.prompt)
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=domain.Response(answer=answer).model_dump()
+    )
 
 @app.exception_handler(RequestValidationError)
 async def exceptionHandler(request: Request, exc: RequestValidationError):

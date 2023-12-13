@@ -1,7 +1,7 @@
 import service
 from langchain import hub
 from langchain.chains import RetrievalQA
-from langchain.document_loaders import TextLoader
+from langchain.document_loaders import DirectoryLoader, TextLoader
 from langchain.embeddings import OllamaEmbeddings
 from langchain.llms import Ollama
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -16,10 +16,15 @@ def create_vectorestore():
     settings = service.load_settings()
     ollama_settings = settings.get('ollama')
     if ollama_settings is not None:
-        url = ollama_settings.get('url')
+        url = ollama_settings.get('base_url')
         model = ollama_settings.get('model')
-
-        loader = TextLoader('text')
+        
+        loader = DirectoryLoader(
+            path='text',
+            glob="**/*.txt",
+            loader_cls=TextLoader,
+            loader_kwargs={'autodetect_encoding': True}
+        )
         data = loader.load()
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
@@ -36,7 +41,7 @@ def chain_prompt(question: str) -> str:
     settings = service.load_settings()
     ollama_settings = settings.get('ollama')
     if ollama_settings is not None:
-        url = ollama_settings.get('url')
+        url = ollama_settings.get('base_url')
         model = ollama_settings.get('model')
 
         ollama = Ollama(
@@ -52,9 +57,6 @@ def chain_prompt(question: str) -> str:
             persist_directory=VECTORESTORE_DIRECTORY
         )
 
-        docs = vectorstore.similarity_search(question)
-        print(len(docs))
-
         QA_CHAIN_PROMPT = hub.pull(HUB)
 
         qa_chain = RetrievalQA.from_chain_type(
@@ -62,4 +64,5 @@ def chain_prompt(question: str) -> str:
             retriever=vectorstore.as_retriever(),
             chain_type_kwargs={"prompt": QA_CHAIN_PROMPT}
         )
-        return qa_chain({"query": question}).result
+        answer = qa_chain({"query": question})
+        return answer.get('result')
