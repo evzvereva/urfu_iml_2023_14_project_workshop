@@ -1,4 +1,5 @@
 import domain
+import embeddings
 import service
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
@@ -59,6 +60,14 @@ async def chat(request: domain.Request) -> JSONResponse:
         status_code=200,
         headers={'Content-Type': 'application/json; charset=utf-8'}
     )
+
+@app.post('/embeddings/create')
+async def create_embeddings():
+    embeddings.create_vectorestore()
+
+@app.post('/embeddings/prompt')
+async def chain_prompt(request: domain.EmbeddingRequest) -> str:
+    return embeddings.chain_prompt(request.prompt)
 
 @app.exception_handler(RequestValidationError)
 async def exceptionHandler(request: Request, exc: RequestValidationError):

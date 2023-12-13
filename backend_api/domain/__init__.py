@@ -54,3 +54,8 @@ class Error(BaseModel):
         error (str): The error message.
     """
     error: str
+
+class EmbeddingRequest(BaseModel):
+    """
+    """
+    prompt: str
