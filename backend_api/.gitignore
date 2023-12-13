@@ -2,3 +2,5 @@ models/*
 logs/*
 secrets.txt
 settings.yaml
+.chromadb
+text/*
