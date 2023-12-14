@@ -1,6 +1,6 @@
-from gpt4all import GPT4All
 import domain
 import service
+from gpt4all import GPT4All
 
 logger = service.getLogger(__name__)
 
@@ -72,9 +72,9 @@ def chat(request: domain.Request) -> str:
             logger.info(f'Session: {model.current_chat_session}')
 
         answer = model.generate(
-            request.prompt,
+            f'Вопрос про Екатеринбург: {request.prompt}',
             max_tokens=912,
-            temp=0.3,
+            temp=0.1,
             top_k=40,
             top_p=0.9,
             repeat_penalty=1.1,

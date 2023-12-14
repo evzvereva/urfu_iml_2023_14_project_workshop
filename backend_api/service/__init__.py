@@ -1,7 +1,9 @@
-from hashlib import md5
-import yaml
 import logging
+from hashlib import md5
 from logging.handlers import TimedRotatingFileHandler
+
+import yaml
+
 
 def check_token(token: str) -> bool:
     """

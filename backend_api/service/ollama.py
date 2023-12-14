@@ -1,6 +1,6 @@
 import domain
-import service
 import requests
+import service
 from pydantic import BaseModel
 
 logger = service.getLogger(__name__)
@@ -8,23 +8,25 @@ logger = service.getLogger(__name__)
 system_template = 'Ты - справочник по городу Екатеринбург. \
 Помоги найти короткий ответ. Поиск только по Екатеринбургу.'
 
-class YGPTCompletionOptions(BaseModel):
-    stream: bool
+class OllamaOptions(BaseModel):
+    seed: int
     temperature: float
-    maxTokens: int
+    vocab_only: bool
+    embedding_only: bool
 
-class YGPTMessage(BaseModel):
+class OllamaMessage(BaseModel):
     role: str
-    text: str
+    content: str
 
-class YGPTRequest(BaseModel):
-    modelUri: str
-    completionOptions: YGPTCompletionOptions
-    messages: list[YGPTMessage]
+class OllamaRequest(BaseModel):
+    model: str
+    stream: bool
+    options: OllamaOptions
+    messages: list[OllamaMessage]
 
 def chat(request: domain.Request) -> str:
     """
-    The main function of responding to user requests, which uses the YandexGPT API.
+    The main function of responding to user requests, which uses the Ollama API.
 
     Args:
         request (Request): The request object containing the chat data.
@@ -36,24 +38,22 @@ def chat(request: domain.Request) -> str:
 
     settings = service.load_settings()
 
-    yandex_gpt = settings.get('yandexGPT')
-    if yandex_gpt is not None:
-        url = yandex_gpt.get('url')
-        api_key = yandex_gpt.get('api_key')
-        folder = yandex_gpt.get('folder')
-        if yandex_gpt.get('system_template') is not None:
-            system_template = yandex_gpt.get('system_template')
+    ollama_settings = settings.get('ollama')
+    if ollama_settings is not None:
+        url = ollama_settings.get('url')
+        model = ollama_settings.get('model')
+        if ollama_settings.get('system_template') is not None:
+            system_template = ollama_settings.get('system_template')
 
         headers = {
-            'Authorization': f'Api-Key {api_key}',
-            'Content-Type': 'application/json; charset=utf-8',
-            'x-folder-id': folder
+            'Content-Type': 'application/json; charset=utf-8'
         }
 
-        completionOptions = YGPTCompletionOptions(
-            stream=False,
-            temperature=0.3,
-            maxTokens=912
+        options = OllamaOptions(
+            seed=42,
+            temperature=0.1,
+            vocab_only=False,
+            embedding_only=False
         )
 
         messages = []
@@ -61,9 +61,9 @@ def chat(request: domain.Request) -> str:
         add_system = True
         for message in request.history:
             messages.append(
-                YGPTMessage(
+                OllamaMessage(
                     role=message.role.value,
-                    text=message.content
+                    content=message.content
                 )
             )
             if message.role == domain.Role.system:
@@ -72,22 +72,28 @@ def chat(request: domain.Request) -> str:
         if add_system:
             messages.insert(
                 0,
-                YGPTMessage(
+                OllamaMessage(
                     role='system',
-                    text=system_template
+                    content=system_template
                 )
             )
         
+        if len(request.history) == 0:
+            prompt = f'Вопрос про Екатеринбург: {request.prompt}'
+        else:
+            prompt = request.prompt
+
         messages.append(
-            YGPTMessage(
+            OllamaMessage(
                 role='user',
-                text=f'Екатеринбург. {request.prompt}'
+                content=prompt
             )
         )
 
-        data = YGPTRequest(
-            modelUri=f'gpt://{folder}/yandexgpt-lite',
-            completionOptions=completionOptions,
+        data = OllamaRequest(
+            model=model,
+            stream=False,
+            options=options,
             messages=messages
         )
 
@@ -102,12 +108,9 @@ def chat(request: domain.Request) -> str:
                 logger.info(response.json())
             except:
                 logger.info(response.content)
-            answer = ''
-            result = response.json().get('result')
-            for alternative in result.get('alternatives'):
-                message = alternative.get('message')
-                if message.get('role') == 'assistant':
-                    answer += message.get('text')
+            
+            message = response.json().get('message')
+            answer = message.get('content')
             return answer
         else:
             logger.error(f'code: {response.status_code}, body: {response.content}')
