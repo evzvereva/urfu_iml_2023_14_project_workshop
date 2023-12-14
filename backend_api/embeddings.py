@@ -57,6 +57,8 @@ def chain_prompt(question: str) -> str:
             persist_directory=VECTORESTORE_DIRECTORY
         )
 
+        docs = vectorstore.similarity_search(question)
+
         QA_CHAIN_PROMPT = hub.pull(HUB)
 
         qa_chain = RetrievalQA.from_chain_type(
@@ -65,4 +67,7 @@ def chain_prompt(question: str) -> str:
             chain_type_kwargs={"prompt": QA_CHAIN_PROMPT}
         )
         answer = qa_chain({"query": question})
+
+        logger.info(f'question: {question}\ndocs: {docs}\nanswer: {answer}')
+
         return answer.get('result')
