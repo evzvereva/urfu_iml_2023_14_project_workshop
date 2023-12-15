@@ -8,6 +8,7 @@ COPY domain domain
 RUN mkdir -p service
 COPY service service
 COPY gpt-api.py .
+COPY embeddings.py .
 COPY secrets.txt .
 COPY settings.yaml .
 RUN mkdir logs
