@@ -88,6 +88,21 @@ async def chain_prompt(request: domain.EmbeddingRequest) -> JSONResponse:
         content=domain.Response(answer=answer).model_dump()
     )
 
+@app.post('/embeddings/find')
+async def find_docs(request: domain.EmbeddingRequest) -> JSONResponse:
+    if service.check_token(request.api_key) == False:
+        logger.error(f'Authentication failed')
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=domain.Error(error='authentication failed').model_dump()
+        )
+    
+    docs = embeddings.find_docs(request.prompt)
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=domain.Response(answer=docs).model_dump()
+    )
+
 @app.exception_handler(RequestValidationError)
 async def exceptionHandler(request: Request, exc: RequestValidationError):
     """
