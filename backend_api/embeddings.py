@@ -38,7 +38,7 @@ def create_vectorestore():
             persist_directory=VECTORESTORE_DIRECTORY
         )
 
-def find_docs(question: str) -> str:
+def search_docs(question: str) -> str:
     settings = service.load_settings()
     ollama_settings = settings.get('ollama')
     if ollama_settings is not None:

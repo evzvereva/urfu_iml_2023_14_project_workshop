@@ -1,6 +1,6 @@
-import domain
 import embeddings
 import service
+from domain import api
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
@@ -14,38 +14,49 @@ app = FastAPI()
 @app.get('/')
 async def root() -> str:
     """
-    Handler for the root endpoint.
+    Обработчик корневого метода /
     
-    Returns:
-        str: The message to display at the root endpoint.
+    Возвращаемое значение:
+        str: 
     """
     return ''
 
 @app.post('/chat')
-async def chat(request: domain.Request) -> JSONResponse:
+async def chat(request: api.Request) -> JSONResponse:
     """
-    Handler for the '/chat' endpoint.
+    Обработчик метода /chat
 
-    Args:
-        request (Request): The request object containing the chat data.
+    Параметры:
+        request (Request): запрос содержащий параметры чата
 
-    Returns:
-        JSONResponse: The response to the request.
+    Возвращаемое значение:
+        JSONResponse: ответ в формате JSON.
     """
 
     if service.check_token(request.api_key) == False:
         logger.error(f'Authentication failed')
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            content=domain.Error(error='authentication failed').model_dump()
+            content=api.Error(error='authentication failed').model_dump()
         )
 
     answer = ''
 
-    if request.service == 'ollama':
-        answer = ollama.chat(request)
-        logger.info(f'Ollama: request: {request}')        
-    else:
+    if request.options is not None:
+        if request.options.model == 'ollama':
+            logger.info(f'Ollama: request: {request}')
+            if request.options.embeddings == 'prompt':
+                answer = embeddings.chain_prompt(request.prompt)
+            elif request.options.embeddings == 'search_docs':
+                answer = embeddings.search_docs(request.prompt)
+            elif request.options.embeddings == 'create_vs':
+                embeddings.create_vectorestore()
+                answer = 'created'
+            else:
+                answer = ollama.chat(request)
+                logger.info(f'Ollama: request: {request}')
+    
+    if len(answer) == 0:
         try:
             answer = yandex_gpt.chat(request)
             logger.info(f'YGPT: request: {request}')
@@ -56,63 +67,21 @@ async def chat(request: domain.Request) -> JSONResponse:
             logger.info(f'Ollama: request: {request}')
 
     return JSONResponse(
-        domain.Response(answer=answer).model_dump(),
+        api.Response(answer=answer).model_dump(),
         status_code=200,
         headers={'Content-Type': 'application/json; charset=utf-8'}
-    )
-
-@app.post('/embeddings/create')
-async def create_embeddings(request: domain.EmbeddingRequest) -> JSONResponse:
-    if service.check_token(request.api_key) == False:
-        logger.error(f'Authentication failed')
-        return JSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            content=domain.Error(error='authentication failed').model_dump()
-        )
-    
-    embeddings.create_vectorestore()
-    return JSONResponse(status_code=status.HTTP_200_OK, content='')
-
-@app.post('/embeddings/prompt')
-async def chain_prompt(request: domain.EmbeddingRequest) -> JSONResponse:
-    if service.check_token(request.api_key) == False:
-        logger.error(f'Authentication failed')
-        return JSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            content=domain.Error(error='authentication failed').model_dump()
-        )
-    
-    answer = embeddings.chain_prompt(request.prompt)
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content=domain.Response(answer=answer).model_dump()
-    )
-
-@app.post('/embeddings/find')
-async def find_docs(request: domain.EmbeddingRequest) -> JSONResponse:
-    if service.check_token(request.api_key) == False:
-        logger.error(f'Authentication failed')
-        return JSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            content=domain.Error(error='authentication failed').model_dump()
-        )
-    
-    docs = embeddings.find_docs(request.prompt)
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content=domain.Response(answer=docs).model_dump()
     )
 
 @app.exception_handler(RequestValidationError)
 async def exceptionHandler(request: Request, exc: RequestValidationError):
     """
-    Exception handler for RequestValidationError.
+    Обработчик ошибок RequestValidationError.
 
-    Args:
+    Параметры:
         request: The request object.
         exc (RequestValidationError): The exception object.
 
-    Returns:
+    Возвращаемое значение:
         None
     """
     logger.error(f'exception: {str(exc)}; body: {exc.body}')
