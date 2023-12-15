@@ -1,6 +1,6 @@
-import domain
 import requests
 import service
+from domain import api
 from pydantic import BaseModel
 
 logger = service.getLogger(__name__)
@@ -22,7 +22,7 @@ class YGPTRequest(BaseModel):
     completionOptions: YGPTCompletionOptions
     messages: list[YGPTMessage]
 
-def chat(request: domain.Request) -> str:
+def chat(request: api.Request) -> str:
     """
     The main function of responding to user requests, which uses the YandexGPT API.
 
@@ -66,7 +66,7 @@ def chat(request: domain.Request) -> str:
                     text=message.content
                 )
             )
-            if message.role == domain.Role.system:
+            if message.role == api.Role.system:
                 add_system = False
 
         if add_system:
