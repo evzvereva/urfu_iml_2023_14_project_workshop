@@ -4,4 +4,6 @@ pydantic==2.5.2
 PyYAML==6.0.1
 requests==2.31.0
 uvicorn>=0.24.0
+langchain==0.0.349
 langchainhub==0.1.14
+chromadb==0.4.18

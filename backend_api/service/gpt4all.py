@@ -1,5 +1,5 @@
-import domain
 import service
+from domain import api
 from gpt4all import GPT4All
 
 logger = service.getLogger(__name__)
@@ -31,7 +31,7 @@ def init_model() -> None:
             allow_download=False
         )
 
-def chat(request: domain.Request) -> str:
+def chat(request: api.Request) -> str:
     """
     The main function of responding to user requests, which uses the GPT4All model.
 
