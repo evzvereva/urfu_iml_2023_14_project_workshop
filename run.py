@@ -4,8 +4,8 @@ from pathlib import Path
 from streamlit.source_util import get_pages as st_get_pages
 from streamlit.source_util import _on_pages_changed as st_on_pages_changed
 
-# Заголовок страницы
-st.title("O Екатеринбурге")
+# Настройка отображения страницы
+st.set_page_config(page_title="O Екатеринбурге", page_icon="🏙️", )
 
 def st_page_rename(pages_name: dict[str, str]) -> None:
     """

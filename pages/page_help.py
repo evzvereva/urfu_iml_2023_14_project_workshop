@@ -41,8 +41,7 @@ get_answer_to_question("Где я могу оставить рекомендац
                                                                           "/Wi1HXgCzzARhBDx87>ссылке</a>.")
 
 get_answer_to_question("Если возникла техническая неполадка, куда могу обратиться?", "Напишите, пожалуйста, на "
-                                                                                     "электронную почту <a "
-                                                                                     "href=team.smart.guide.city"
-                                                                                     "@gmail.com>team.smart.guide"
-                                                                                     ".city@gmail.com</a>, отправив "
-                                                                                     "подробное описание проблемы.")
+                                                                                     "электронную почту "
+                                                                                     "team.smart.guide.city@gmail"
+                                                                                     ".com, отправив подробное "
+                                                                                     "описание проблемы.")
