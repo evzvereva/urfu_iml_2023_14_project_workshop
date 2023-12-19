@@ -13,6 +13,10 @@ VECTORESTORE_DIRECTORY = '.chromadb'
 HUB = 'rlm/rag-prompt-llama'
 
 def create_vectorestore():
+    """
+    Функция создания векторного хранилища.
+    Анализируются текстовые файлы в каталоге text, результаты сохраняются в ChromaDb.
+    """
     settings = service.load_settings()
     ollama_settings = settings.get('ollama')
     if ollama_settings is not None:
@@ -39,6 +43,15 @@ def create_vectorestore():
         )
 
 def search_docs(question: str) -> str:
+    """
+    Функция выполняет поиск документов соответствующих запросу.
+
+    Параметры:
+        question (str): запрос пользователя
+
+    Возвращаемое значение:
+        str: список документов в формате JSON.
+    """
     settings = service.load_settings()
     ollama_settings = settings.get('ollama')
     if ollama_settings is not None:
@@ -54,6 +67,16 @@ def search_docs(question: str) -> str:
         return str(docs)
 
 def chain_prompt(question: str) -> str:
+    """
+    Функция формирует ответ на основании запроса и контекста из найденных документов.
+    Для формирования ответа используется Ollama.
+
+    Параметры:
+        question (str): запрос пользователя
+
+    Возвращаемое значение:
+        str: ответ пользователю.
+    """
     settings = service.load_settings()
     ollama_settings = settings.get('ollama')
     if ollama_settings is not None:

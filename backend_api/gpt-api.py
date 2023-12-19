@@ -32,7 +32,6 @@ async def chat(request: api.Request) -> JSONResponse:
     Возвращаемое значение:
         JSONResponse: ответ в формате JSON.
     """
-
     if service.check_token(request.api_key) == False:
         logger.error(f'Authentication failed')
         return JSONResponse(

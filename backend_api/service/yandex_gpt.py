@@ -9,28 +9,51 @@ system_template = 'Ты - справочник по городу Екатери�
 Помоги найти короткий ответ. Поиск только по Екатеринбургу.'
 
 class YGPTCompletionOptions(BaseModel):
+    """
+    Класс параметров модели.
+
+    Параметры:
+        stream (bool): признак потокового ответа
+        temperature (float): влияет на креативность и случайность ответов, допустимый диапазон: от 0 до 1
+        maxTokens (int): ограничение количества токенов, используемых для генерации одного ответа
+    """
     stream: bool
     temperature: float
     maxTokens: int
 
 class YGPTMessage(BaseModel):
+    """
+    Класс с описанием сообщения.
+
+    Параметры:
+        role (str): роль отправителя сообщения
+        text (str): содержимое сообщения
+    """
     role: str
     text: str
 
 class YGPTRequest(BaseModel):
+    """
+    Класс запроса.
+
+    Параметры:
+        modelUri (str): URL доступа к API YandexGPT содержащий имя используемой модели
+        completionOptions (YGPTCompletionOptions): параметры модели
+        messages (list[YGPTMessage]): список предыдущих сообщений пользователя и ассистента
+    """
     modelUri: str
     completionOptions: YGPTCompletionOptions
     messages: list[YGPTMessage]
 
 def chat(request: api.Request) -> str:
     """
-    The main function of responding to user requests, which uses the YandexGPT API.
+    Основная функция формирования ответа на запрос пользователя.
 
-    Args:
-        request (Request): The request object containing the chat data.
+    Параметры:
+        request (Request): запрос содержащий параметры чата
 
-    Returns:
-        str: The response to the request.
+    Возвращаемое значение:
+        str: ответ на запрос.
     """
     logger.info(request.prompt)
 

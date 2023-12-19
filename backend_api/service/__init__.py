@@ -7,12 +7,12 @@ import yaml
 
 def check_token(token: str) -> bool:
     """
-    The function checks if the token hash is in the list of allowed tokens.
+    Функция проверяет наличие хэш-суммы токена в списке разрешенных.
     
-    Args:
-        token (bytes): Token.
+    Параметры:
+        token (bytes): токен
         
-    Returns:
+    Возвращаемое значение:
         None.
     """
     token_md5 = md5(token.encode('utf-8')).hexdigest()
@@ -26,12 +26,12 @@ def check_token(token: str) -> bool:
 
 def add_hash(token: bytes) -> None:
     """
-    The function adds the token hash to the list of allowed tokens.
+    Функция добавляет хэш-сумму токена в списко разрешенных.
     
-    Args:
-        token (bytes): Token.
+    Параметры:
+        token (bytes): токен
         
-    Returns:
+    Возвращаемое значение:
         None.
     """
     with open('secrets.txt', 'a') as file:
@@ -45,13 +45,13 @@ def load_settings():
 
 def getLogger(name: str) -> logging.Logger:
     """
-    Returns a logger object with the specified name.
+    Возвращает объект логера с переданным именем.
     
-    Args:
-        name (str): The name of the logger.
+    Параметры:
+        name (str): имя логера
         
-    Returns:
-        logging.Logger: The logger object.
+    Возвращаемое значение:
+        logging.Logger: объект логера.
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
