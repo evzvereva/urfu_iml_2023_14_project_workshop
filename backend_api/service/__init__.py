@@ -24,6 +24,7 @@ def check_token(token: str) -> bool:
     
     return False
 
+
 def add_hash(token: bytes) -> None:
     """
     Функция добавляет хэш-сумму токена в списко разрешенных.
@@ -38,10 +39,12 @@ def add_hash(token: bytes) -> None:
         file.write(md5(token.encode('utf-8')).hexdigest())
         file.write('\n')
 
+
 def load_settings():
     with open('settings.yaml', 'r') as file:
         settings = yaml.load(file, Loader=yaml.loader.BaseLoader)
         return settings
+
 
 def getLogger(name: str) -> logging.Logger:
     """

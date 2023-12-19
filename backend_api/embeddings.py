@@ -13,6 +13,7 @@ VECTORESTORE_DIRECTORY = '.chromadb'
 TEXT_DIRECTORY = 'text'
 HUB = 'rlm/rag-prompt-llama'
 
+
 def create_vectorestore():
     """
     Функция создания векторного хранилища.
@@ -51,6 +52,7 @@ def create_vectorestore():
             persist_directory=VECTORESTORE_DIRECTORY
         )
 
+
 def search_docs(question: str) -> str:
     """
     Функция выполняет поиск документов соответствующих запросу.
@@ -83,6 +85,7 @@ def search_docs(question: str) -> str:
         # ищем похожие на запрос документы
         docs = vectorstore.similarity_search(question)
         return str(docs)
+
 
 def chain_prompt(question: str) -> str:
     """

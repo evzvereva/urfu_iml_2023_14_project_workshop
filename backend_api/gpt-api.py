@@ -11,6 +11,7 @@ logger = service.getLogger(__name__)
 
 app = FastAPI()
 
+
 @app.get('/')
 async def root() -> str:
     """
@@ -20,6 +21,7 @@ async def root() -> str:
         str: 
     """
     return ''
+
 
 @app.post('/chat')
 async def chat(request: api.Request) -> JSONResponse:
@@ -86,6 +88,7 @@ async def chat(request: api.Request) -> JSONResponse:
         status_code=200,
         headers={'Content-Type': 'application/json; charset=utf-8'}
     )
+
 
 @app.exception_handler(RequestValidationError)
 async def exceptionHandler(request: Request, exc: RequestValidationError):
