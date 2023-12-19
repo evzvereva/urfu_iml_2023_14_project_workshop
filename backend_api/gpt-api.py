@@ -11,6 +11,7 @@ logger = service.getLogger(__name__)
 
 app = FastAPI()
 
+
 @app.get('/')
 async def root() -> str:
     """
@@ -20,6 +21,7 @@ async def root() -> str:
         str: 
     """
     return ''
+
 
 @app.post('/chat')
 async def chat(request: api.Request) -> JSONResponse:
@@ -32,7 +34,10 @@ async def chat(request: api.Request) -> JSONResponse:
     Возвращаемое значение:
         JSONResponse: ответ в формате JSON.
     """
+
+    # авторизация по токену
     if service.check_token(request.api_key) == False:
+        # если не прошла, то вернем ошибку 401
         logger.error(f'Authentication failed')
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -41,35 +46,49 @@ async def chat(request: api.Request) -> JSONResponse:
 
     answer = ''
 
+    # проверяем наличие параметров в запросе
     if request.options is not None:
         if request.options.model == 'ollama':
             logger.info(f'Ollama: request: {request}')
+            
+            # проверяем параметр embeddings
             if request.options.embeddings == 'prompt':
+                # формируем ответ с учетом локальных документов
                 answer = embeddings.chain_prompt(request.prompt)
             elif request.options.embeddings == 'search_docs':
+                # ищем документы и возвращаем список в виде строки
                 answer = embeddings.search_docs(request.prompt)
             elif request.options.embeddings == 'create_vs':
+                # создаем векторное хранилище по локальным документам
+                # это нужно для поиска и формирования ответа по ним
                 embeddings.create_vectorestore()
                 answer = 'created'
             else:
+                # embeddings не заполнен, значит отправляем простой запрос к модели
                 answer = ollama.chat(request)
                 logger.info(f'Ollama: request: {request}')
     
     if len(answer) == 0:
+        # ответ не был сформирован ранее
         try:
+            # отправляем запрос в YandexGPT
             answer = yandex_gpt.chat(request)
             logger.info(f'YGPT: request: {request}')
         except Exception as e:
+            # логируем ошибку YandexGPT
             logger.error(f'YGPT: {str(e)}')
 
+            # отправляем запрос серверу Ollama
             answer = ollama.chat(request)
             logger.info(f'Ollama: request: {request}')
 
+    # формируем ответ на запрос в формате JSON
     return JSONResponse(
         api.Response(answer=answer).model_dump(),
         status_code=200,
         headers={'Content-Type': 'application/json; charset=utf-8'}
     )
+
 
 @app.exception_handler(RequestValidationError)
 async def exceptionHandler(request: Request, exc: RequestValidationError):

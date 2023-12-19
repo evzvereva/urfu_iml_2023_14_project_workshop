@@ -11,6 +11,7 @@ model = None
 settings = service.load_settings()
 gpt4all_settings = settings.get('GPT4All')
 
+
 def init_model() -> None:
     """
     Функция инициализации модели GPT4All.
@@ -20,6 +21,8 @@ def init_model() -> None:
     """
     global model, system_template, gpt4all_settings
 
+    # инициализируем модель только один раз
+    # при этом происходит загрузка в память GPU
     if model is None:
         gpt4all_path = gpt4all_settings.get('model_path')
         gpt4all_model = gpt4all_settings.get('model_name')
@@ -33,6 +36,7 @@ def init_model() -> None:
             device=gpt4all_settings.get('device'),
             allow_download=False
         )
+
 
 def chat(request: api.Request) -> str:
     """
@@ -52,17 +56,19 @@ def chat(request: api.Request) -> str:
 
     answer = ''
 
-    # default prompt template
+    # шаблон по умолчанию
     prompt_template = '### Human: \n{0}\n### Assistant:\n'
     
     if gpt4all_settings.get('prompt_template') is not None:
         prompt_template = gpt4all_settings.get('prompt_template')
 
+    # начинаем сессию чата
     with model.chat_session(
         system_prompt=system_template,
         prompt_template=prompt_template
     ):
 
+        # заполняем сессию историем сообщений
         for message in request.history:
             model.current_chat_session.append(
                 {
@@ -71,9 +77,11 @@ def chat(request: api.Request) -> str:
                 }
             )
         
+        # логирование для анализа
         if len(request.history) > 0:
             logger.info(f'Session: {model.current_chat_session}')
 
+        # формируем ответ
         answer = model.generate(
             f'Вопрос про Екатеринбург: {request.prompt}',
             max_tokens=912,
@@ -85,10 +93,14 @@ def chat(request: api.Request) -> str:
             n_batch=9
         )
 
+        # обрезаем ответ, если он содержит ###
+        # иногда модель начинает после ответа сама задавать вопросы
+        # и отвечает на них, это начинается после ###
         if '###' in answer:
             logger.info(f'Answer with ###: {answer}')
             answer = answer[:answer.find('###')]
 
+    # логируем ответ
     logger.info(f'Answer: {answer}')
 
     return answer

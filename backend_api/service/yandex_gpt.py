@@ -45,6 +45,7 @@ class YGPTRequest(BaseModel):
     completionOptions: YGPTCompletionOptions
     messages: list[YGPTMessage]
 
+
 def chat(request: api.Request) -> str:
     """
     Основная функция формирования ответа на запрос пользователя.
@@ -57,6 +58,7 @@ def chat(request: api.Request) -> str:
     """
     logger.info(request.prompt)
 
+    # читаем настройки
     settings = service.load_settings()
 
     yandex_gpt = settings.get('yandexGPT')
@@ -73,16 +75,19 @@ def chat(request: api.Request) -> str:
             'x-folder-id': folder
         }
 
+        # создаем класс параметров модели
         completionOptions = YGPTCompletionOptions(
             stream=False,
             temperature=0.1,
             maxTokens=912
         )
 
+        # создаем список истории сообщений
         messages = []
         
         add_system = True
         for message in request.history:
+            # заполняем историю запросов
             messages.append(
                 YGPTMessage(
                     role=message.role.value,
@@ -92,6 +97,7 @@ def chat(request: api.Request) -> str:
             if message.role == api.Role.system:
                 add_system = False
 
+        # системного запроса не было, значит добавим свой
         if add_system:
             messages.insert(
                 0,
@@ -102,10 +108,14 @@ def chat(request: api.Request) -> str:
             )
         
         if len(request.history) == 0:
+            # если не было истории, то добавим префикс к запросу,
+            # чтобы модель отвечала про Екатеринбург даже, если в запросе
+            # это не указано
             prompt = f'Вопрос про Екатеринбург: {request.prompt}'
         else:
             prompt = request.prompt
 
+        # добавляем в историю новый запрос пользователя
         messages.append(
             YGPTMessage(
                 role='user',
@@ -113,12 +123,14 @@ def chat(request: api.Request) -> str:
             )
         )
 
+        # создаем объект запроса к модели
         data = YGPTRequest(
             modelUri=f'gpt://{folder}/yandexgpt-lite',
             completionOptions=completionOptions,
             messages=messages
         )
 
+        # отправляем подготовленный запрос
         response = requests.post(
             url=url,
             headers=headers,
@@ -126,6 +138,7 @@ def chat(request: api.Request) -> str:
         )
 
         if response.status_code == 200:
+            # логируем ответ
             try:
                 logger.info(response.json())
             except:
@@ -136,9 +149,12 @@ def chat(request: api.Request) -> str:
                 message = alternative.get('message')
                 if message.get('role') == 'assistant':
                     answer += message.get('text')
+            # возвращаем ответ от модели
             return answer
         else:
+            # логируем ошибку
             logger.error(f'code: {response.status_code}, body: {response.content}')
             raise Exception(response.status_code)
     else:
+        # настройки не заполнены
         raise Exception('settings is empty')

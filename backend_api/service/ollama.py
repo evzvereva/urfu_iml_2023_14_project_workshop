@@ -47,6 +47,7 @@ class OllamaRequest(BaseModel):
     options: OllamaOptions
     messages: list[OllamaMessage]
 
+
 def chat(request: api.Request) -> str:
     """
     Основная функция формирования ответа на запрос пользователя.
@@ -59,6 +60,7 @@ def chat(request: api.Request) -> str:
     """
     logger.info(request.prompt)
 
+    # читаем настройки
     settings = service.load_settings()
 
     ollama_settings = settings.get('ollama')
@@ -72,6 +74,7 @@ def chat(request: api.Request) -> str:
             'Content-Type': 'application/json; charset=utf-8'
         }
 
+        # создаем класс параметров модели
         options = OllamaOptions(
             seed=42,
             temperature=0.1,
@@ -79,10 +82,12 @@ def chat(request: api.Request) -> str:
             embedding_only=False
         )
 
+        # создаем список истории сообщений
         messages = []
         
         add_system = True
         for message in request.history:
+            # заполняем историю запросов
             messages.append(
                 OllamaMessage(
                     role=message.role.value,
@@ -92,6 +97,7 @@ def chat(request: api.Request) -> str:
             if message.role == api.Role.system:
                 add_system = False
 
+        # системного запроса не было, значит добавим свой
         if add_system:
             messages.insert(
                 0,
@@ -102,10 +108,14 @@ def chat(request: api.Request) -> str:
             )
         
         if len(request.history) == 0:
+            # если не было истории, то добавим префикс к запросу,
+            # чтобы модель отвечала про Екатеринбург даже, если в запросе
+            # это не указано
             prompt = f'Вопрос про Екатеринбург: {request.prompt}'
         else:
             prompt = request.prompt
 
+        # добавляем в историю новый запрос пользователя
         messages.append(
             OllamaMessage(
                 role='user',
@@ -113,6 +123,7 @@ def chat(request: api.Request) -> str:
             )
         )
 
+        # создаем объект запроса к модели
         data = OllamaRequest(
             model=model,
             stream=False,
@@ -120,6 +131,7 @@ def chat(request: api.Request) -> str:
             messages=messages
         )
 
+        # отправляем подготовленный запрос
         response = requests.post(
             url=url,
             headers=headers,
@@ -127,6 +139,7 @@ def chat(request: api.Request) -> str:
         )
 
         if response.status_code == 200:
+            # логируем ответ
             try:
                 logger.info(response.json())
             except:
@@ -134,9 +147,12 @@ def chat(request: api.Request) -> str:
             
             message = response.json().get('message')
             answer = message.get('content')
+            # возвращаем ответ от модели
             return answer
         else:
+            # логируем ошибку
             logger.error(f'code: {response.status_code}, body: {response.content}')
             raise Exception(response.status_code)
     else:
+        # настройки не заполнены
         raise Exception('settings is empty')
