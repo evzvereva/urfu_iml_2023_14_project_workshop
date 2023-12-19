@@ -13,7 +13,10 @@ gpt4all_settings = settings.get('GPT4All')
 
 def init_model() -> None:
     """
-    GPT4All model initialization.
+    Функция инициализации модели GPT4All.
+
+    Возвращаемое значение:
+        None
     """
     global model, system_template, gpt4all_settings
 
@@ -33,13 +36,13 @@ def init_model() -> None:
 
 def chat(request: api.Request) -> str:
     """
-    The main function of responding to user requests, which uses the GPT4All model.
+    Основная функция формирования ответа на запрос пользователя.
 
-    Args:
-        request (Request): The request object containing the chat data.
+    Параметры:
+        request (Request): запрос содержащий параметры чата
 
-    Returns:
-        str: The response to the request.
+    Возвращаемое значение:
+        str: ответ на запрос.
     """
     global model, gpt4all_settings
 
