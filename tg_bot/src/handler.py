@@ -24,12 +24,17 @@ user_state = UserState()
 
 @bot_router.message(Command("start"))
 async def handle_cmd_start(msg: types.Message):
+    """
+    Обработка команды Start ТГ бота
+    """
     logger.log(level=logging.INFO,
                msg=f' --> Мы знакомимся с {msg.from_user.full_name} '
                    f'({msg.from_user.id})')
 
+    # Инициализация пользователя
     user_state.init_user(msg.from_user.id, msg.from_user.full_name)
 
+    # Отправка ответа пользователю
     await msg.answer(f'{msg.from_user.first_name}, Добро пожаловать!\n'
                      f'Я умный городской гид по городу Екатеринбургу '
                      f'и с радостью помогу ответить на ваши '
@@ -40,37 +45,52 @@ async def handle_cmd_start(msg: types.Message):
 
 @bot_router.message(Command("help"))
 async def handle_cmd_help(msg: types.Message):
+    """
+    Обработка команды Help ТГ бота
+    """
     logger.log(level=logging.INFO,
                msg=f' --> Справку запрашивает {msg.from_user.full_name} '
                    f'({msg.from_user.id})')
 
+    # Инициализация пользователя
     user_state.init_user(msg.from_user.id, msg.from_user.full_name)
 
+    # Отправка ответа пользователю
     await msg.answer(f'Более подробная информация доступна на '
                      f'<a href="{LINK_HELP}">сайте</a> проекта')
 
 
 @bot_router.message(Command("about"))
 async def handle_cmd_about(msg: types.Message):
+    """
+    Обработка команды About ТГ бота
+    """
     logger.log(level=logging.INFO,
                msg=f' --> О нас запрашивает {msg.from_user.full_name} '
                    f'({msg.from_user.id})')
 
+    # Инициализация пользователя
     user_state.init_user(msg.from_user.id, msg.from_user.full_name)
 
+    # Отправка ответа пользователю
     await msg.answer(f'Более подробная информация доступна на '
                      f'<a href="{LINK_ABOUT}">сайте</a> проекта')
 
 
 @bot_router.message(Command("voice_out"))
 async def handle_cmd_about(msg: types.Message):
+    """
+    Обработка команды переключения режима озвучивания ТГ бота
+    """
     logger.log(level=logging.INFO,
                msg=f' --> {msg.from_user.full_name} '
                    f'({msg.from_user.id}) переключает голос')
 
+    # Инициализация пользователя и переключение режима озвучивания
     user_state.init_user(msg.from_user.id, msg.from_user.full_name)
     result = user_state.toogle_user_voice_out(msg.from_user.id)
 
+    # Отправка ответа пользователю
     if result:
         await msg.answer(f'Режим озвучивания включен')
     else:
@@ -79,32 +99,45 @@ async def handle_cmd_about(msg: types.Message):
 
 @bot_router.message(Command("clear"))
 async def handle_cmd_about(msg: types.Message):
+    """
+    Обработка команды очистки контекста сообщений ТГ бота
+    """
     logger.log(level=logging.INFO,
                msg=f' --> {msg.from_user.full_name} '
                    f'({msg.from_user.id}) сбрасывает контекст')
 
+    # Инициализация пользователя и очистка истории сообщений
     user_state.init_user(msg.from_user.id, msg.from_user.full_name)
     user_state.clear_history(msg.from_user.id)
 
+    # Отправка ответа пользователю
     await msg.answer(f'Контекст сброшен! Приятного общения 😀')
 
 
 @bot_router.message()
 async def handle_voice_message(msg: types.Message):
+    """
+    Обработка текстовых сообщений пользователя
+    """
     logger.log(level=logging.INFO,
                msg=f' --> Мы получили вопрос от '
                    f'{msg.from_user.full_name} '
                    f'({msg.from_user.id})')
     logger.log(level=logging.INFO,
                msg=f' ----> Content Type - {msg.content_type}')
-
+    
+    # Инициализация пользователя
     user_state.init_user(msg.from_user.id, msg.from_user.full_name)
 
+    # Если тип сообщения не текст или не голосовая запись,
+    # то вернем осообщение об ошибке обработки
     if msg.content_type != types.ContentType.TEXT \
             and msg.content_type != types.ContentType.VOICE:
         await msg.answer(f'Я не умею обрабатывать сообщения типа {msg.content_type}')
         return
 
+    # Если пользователь ввел команду, которую мы не знаем,
+    # то вернем соответствующее сообщение
     if msg.text and msg.text[0] == '/':
         logger.log(level=logging.INFO,
                    msg=f' --> Пользователь {msg.from_user.full_name} '
@@ -116,6 +149,7 @@ async def handle_voice_message(msg: types.Message):
     question: str = msg.text
     answer: str = ''
 
+    # Если получено голосовое сообщение, то его надо перевести в текст
     if msg.content_type == types.ContentType.VOICE:
         try:
             # Получение файла голоса
@@ -123,6 +157,7 @@ async def handle_voice_message(msg: types.Message):
             voice_ogg = io.BytesIO()
             await msg.bot.download_file(file_path, voice_ogg)
 
+            # Конвертация голосового сообщения в текст
             question = await conv_voice_to_text(voice_ogg.getbuffer().tobytes(), msg.voice.duration)
         except Exception as e:
             await msg.answer(f'Ошибка программы распознования голоса: {e}')
@@ -132,6 +167,7 @@ async def handle_voice_message(msg: types.Message):
                msg=f' ----> {question}')
 
     try:
+        # Обработка запроса к GPT модели
         answer = await question_processing(msg.from_user.id,
                                            question,
                                            user_state.get_history(msg.from_user.id))
@@ -139,6 +175,7 @@ async def handle_voice_message(msg: types.Message):
         await msg.answer(f'Ошибка получения ответа от помощника: {e}')
         return
 
+    # Добавление сообщений в историю
     user_state.add_history(msg.from_user.id, SimpleMessageHistory(
         role='user',
         message='question'))
@@ -147,6 +184,8 @@ async def handle_voice_message(msg: types.Message):
         message='answer'))
 
     try:
+        # Если у пользователя стоит режим озвучивания ответа,  
+        # то надо перевести текст в голос
         if user_state.get_user_voice_out(msg.from_user.id):
             await msg.bot.send_voice(
                 chat_id=msg.chat.id,
