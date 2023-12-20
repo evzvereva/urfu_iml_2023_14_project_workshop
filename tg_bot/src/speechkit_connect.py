@@ -1,6 +1,5 @@
 import io
 import logging
-
 from speechkit import Session, ShortAudioRecognition, SpeechSynthesis
 
 from config import load_config
@@ -10,18 +9,23 @@ config = load_config()
 
 
 async def conv_voice_to_text(voice: bytes, duration: int) -> str:
+    """
+    Обработка конвертации голоса в текст через Yandex SpeechKit
+    """
+    
     if duration > 30:
         raise Exception(f'Я не могу отвечать на слишком длинные вопросы')
 
     if not voice:
         raise Exception(f'Запись голоса не может быть пустой')
 
-    # Получение текста по голосу
+    # Создание сессии
     session = Session.from_api_key(
         api_key=config.speechkit_config.api_key,
         folder_id=config.speechkit_config.cloud_folder
     )
 
+    # Получение текста по голосу
     recogn = ShortAudioRecognition(session)
     text = recogn.recognize(
         io.BytesIO(voice),
@@ -38,16 +42,21 @@ async def conv_voice_to_text(voice: bytes, duration: int) -> str:
 
 
 async def conv_text_to_voice(text) -> bytes:
+    """
+    Обработка конвертации текста в голос
+    """
+    
     if not text:
         raise Exception(f'Текст не может быть пустым')
 
+    # Создание сессии
     session = Session.from_api_key(
         api_key=config.speechkit_config.api_key,
         folder_id=config.speechkit_config.cloud_folder
     )
 
+    # Получение голосового сообщения из текста
     synthesis = SpeechSynthesis(session)
-
     out_bytes = synthesis.synthesize_stream(
         text=text,
         voice='oksana',
