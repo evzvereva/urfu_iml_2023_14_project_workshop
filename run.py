@@ -4,8 +4,17 @@ from pathlib import Path
 from streamlit.source_util import get_pages as st_get_pages
 from streamlit.source_util import _on_pages_changed as st_on_pages_changed
 
+
 # Настройка отображения страницы
-st.set_page_config(page_title="O Екатеринбурге", page_icon="🏙️", )
+def get_page_title_tab_browser(p_title, p_icon):
+    """
+    Настраивает название вкладки в веб-браузере текущей страницы
+    """
+    return st.set_page_config(page_title=p_title, page_icon=p_icon)
+
+
+get_page_title_tab_browser("O Екатеринбурге", "🏙️")
+
 
 def st_page_rename(pages_name: dict[str, str]) -> None:
     """
@@ -22,6 +31,7 @@ def st_page_rename(pages_name: dict[str, str]) -> None:
                 page_v["page_name"] = page_name_v
 
     st_on_pages_changed.send()
+
 
 def main_app() -> None:
     """
@@ -75,3 +85,13 @@ def add_logo():
 
 
 add_logo()
+
+
+def christmas_image():
+    """
+    Добавляет новогоднее гиф-изображение в sidebar под списком страниц
+    """
+    return st.sidebar.image("https://i.postimg.cc/J7s7jNGP/00.gif")
+
+
+christmas_image()
