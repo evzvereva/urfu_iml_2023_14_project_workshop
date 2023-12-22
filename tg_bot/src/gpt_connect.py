@@ -12,18 +12,23 @@ config = load_config()
 async def question_processing(user_id: int,
                               question: str,
                               history_list: list[SimpleMessageHistory]) -> str:
+    """
+    Обработка запроса к GPT модели
+    """
     if not question:
         raise Exception(f'Вопрос не может быть пустым')
 
     logging.log(logging.INFO,
                 msg=f' ----> Поступил вопрос к ChatGPT: {question}')
 
+    # Заполнение параметров запроса
     url: str = 'https://api.kavlab.ru/chat'
     params: dict = dict()
     params['api_key'] = config.custom_gpt_config.api_key
     params['prompt'] = question
     params['history'] = list()
 
+    # Обработка истории
     for h in history_list:
         params['history'].append({
             'role': h.role,
