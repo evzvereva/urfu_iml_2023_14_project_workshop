@@ -1,4 +1,5 @@
 import logging
+import os
 from hashlib import md5
 from logging.handlers import TimedRotatingFileHandler
 
@@ -58,6 +59,8 @@ def getLogger(name: str) -> logging.Logger:
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
     log_handler = TimedRotatingFileHandler(
         f"logs/{name}.log", encoding='utf-8', when='D'
     )
