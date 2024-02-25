@@ -30,7 +30,7 @@ class ModelOptions(BaseModel):
 
     Параметры:
         model (str): имя модели
-        embeddings (str): 
+        embeddings (str):
             - 'prompt': запрос с использованием embeddings
             - 'search_docs': только поиск документов
             - 'create_vs': создание или обновление векторного хранилища
