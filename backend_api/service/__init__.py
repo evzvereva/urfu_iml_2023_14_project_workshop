@@ -18,10 +18,13 @@ def check_token(token: str) -> bool:
     """
     token_md5 = md5(token.encode('utf-8')).hexdigest()
 
-    with open('secrets.txt', 'r') as file:
-        hash = file.readline().strip()
-        if hash == token_md5:
-            return True
+    try:
+        with open('secrets.txt', 'r') as file:
+            hash = file.readline().strip()
+            if hash == token_md5:
+                return True
+    except FileNotFoundError:
+        return False
 
     return False
 
