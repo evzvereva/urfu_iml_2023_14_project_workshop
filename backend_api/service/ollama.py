@@ -8,18 +8,22 @@ logger = service.getLogger(__name__)
 system_template = 'Ты - справочник по городу Екатеринбург. \
 Помоги найти короткий ответ. Поиск только по Екатеринбургу.'
 
+
 class OllamaOptions(BaseModel):
     """
     Класс параметров модели.
 
     Параметры:
-        seed (int): значение, используемое для получения похожих ответов на одинаковые запросы
-        temperature (float): влияет на креативность и случайность ответов, допустимый диапазон: от 0 до 1
+        seed (int): значение, используемое для получения похожих
+          ответов на одинаковые запросы
+        temperature (float): влияет на креативность и случайность ответов,
+          допустимый диапазон: от 0 до 1
     """
     seed: int
     temperature: float
     vocab_only: bool
     embedding_only: bool
+
 
 class OllamaMessage(BaseModel):
     """
@@ -32,6 +36,7 @@ class OllamaMessage(BaseModel):
     role: str
     content: str
 
+
 class OllamaRequest(BaseModel):
     """
     Класс запроса.
@@ -40,7 +45,8 @@ class OllamaRequest(BaseModel):
         model (str): имя используемой модели
         stream (bool): признак потокового ответа
         options (OllamaOptions): параметры модели
-        messages (list[OllamaMessage]): список предыдущих сообщений пользователя и ассистента
+        messages (list[OllamaMessage]): список предыдущих
+          сообщений пользователя и ассистента
     """
     model: str
     stream: bool
@@ -84,7 +90,7 @@ def chat(request: api.Request) -> str:
 
         # создаем список истории сообщений
         messages = []
-        
+
         add_system = True
         for message in request.history:
             # заполняем историю запросов
@@ -106,7 +112,7 @@ def chat(request: api.Request) -> str:
                     content=system_template
                 )
             )
-        
+
         if len(request.history) == 0:
             # если не было истории, то добавим префикс к запросу,
             # чтобы модель отвечала про Екатеринбург даже, если в запросе
@@ -142,16 +148,18 @@ def chat(request: api.Request) -> str:
             # логируем ответ
             try:
                 logger.info(response.json())
-            except:
+            except Exception:
                 logger.info(response.content)
-            
+
             message = response.json().get('message')
             answer = message.get('content')
             # возвращаем ответ от модели
             return answer
         else:
             # логируем ошибку
-            logger.error(f'code: {response.status_code}, body: {response.content}')
+            logger.error(
+                f'code: {response.status_code}, body: {response.content}'
+            )
             raise Exception(response.status_code)
     else:
         # настройки не заполнены

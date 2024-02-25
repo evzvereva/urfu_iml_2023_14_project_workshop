@@ -17,7 +17,8 @@ HUB = 'rlm/rag-prompt-llama'
 def create_vectorestore():
     """
     Функция создания векторного хранилища.
-    Анализируются текстовые файлы в каталоге text, результаты сохраняются в ChromaDb.
+    Анализируются текстовые файлы в каталоге text,
+      результаты сохраняются в ChromaDb.
     """
 
     # читаем найстройки для Ollama
@@ -26,7 +27,7 @@ def create_vectorestore():
     if ollama_settings is not None:
         url = ollama_settings.get('base_url')
         model = ollama_settings.get('model')
-        
+
         # загружаем все текстовые файлы из каталога text
         loader = DirectoryLoader(
             path=TEXT_DIRECTORY,
@@ -38,7 +39,10 @@ def create_vectorestore():
         data = loader.load()
 
         # разбиваем документы на части для последующей векторизации
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=250, chunk_overlap=20)
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=250,
+            chunk_overlap=20
+        )
         all_splits = text_splitter.split_documents(data)
 
         # создаем объект OllamaEmbeddings для обработки частей документов
@@ -89,7 +93,8 @@ def search_docs(question: str) -> str:
 
 def chain_prompt(question: str) -> str:
     """
-    Функция формирует ответ на основании запроса и контекста из найденных документов.
+    Функция формирует ответ на основании запроса и контекста из
+    найденных документов.
     Для формирования ответа используется Ollama.
 
     Параметры:

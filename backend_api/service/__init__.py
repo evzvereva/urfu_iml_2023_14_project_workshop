@@ -8,10 +8,10 @@ import yaml
 def check_token(token: str) -> bool:
     """
     Функция проверяет наличие хэш-суммы токена в списке разрешенных.
-    
+
     Параметры:
         token (bytes): токен
-        
+
     Возвращаемое значение:
         None.
     """
@@ -21,17 +21,17 @@ def check_token(token: str) -> bool:
         hash = file.readline().strip()
         if hash == token_md5:
             return True
-    
+
     return False
 
 
 def add_hash(token: bytes) -> None:
     """
     Функция добавляет хэш-сумму токена в списко разрешенных.
-    
+
     Параметры:
         token (bytes): токен
-        
+
     Возвращаемое значение:
         None.
     """
@@ -49,17 +49,21 @@ def load_settings():
 def getLogger(name: str) -> logging.Logger:
     """
     Возвращает объект логера с переданным именем.
-    
+
     Параметры:
         name (str): имя логера
-        
+
     Возвращаемое значение:
         logging.Logger: объект логера.
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
-    log_handler = TimedRotatingFileHandler(f"logs/{name}.log", encoding='utf-8', when='D')
-    log_formatter = logging.Formatter(u"%(name)s %(asctime)s %(levelname)s %(message)s")
+    log_handler = TimedRotatingFileHandler(
+        f"logs/{name}.log", encoding='utf-8', when='D'
+    )
+    log_formatter = logging.Formatter(
+        u"%(name)s %(asctime)s %(levelname)s %(message)s"
+    )
     log_handler.setFormatter(log_formatter)
     logger.addHandler(log_handler)
     return logger

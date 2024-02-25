@@ -8,18 +8,22 @@ logger = service.getLogger(__name__)
 system_template = 'Ты - справочник по городу Екатеринбург. \
 Помоги найти короткий ответ. Поиск только по Екатеринбургу.'
 
+
 class YGPTCompletionOptions(BaseModel):
     """
     Класс параметров модели.
 
     Параметры:
         stream (bool): признак потокового ответа
-        temperature (float): влияет на креативность и случайность ответов, допустимый диапазон: от 0 до 1
-        maxTokens (int): ограничение количества токенов, используемых для генерации одного ответа
+        temperature (float): влияет на креативность и
+          случайность ответов, допустимый диапазон: от 0 до 1
+        maxTokens (int): ограничение количества токенов,
+          используемых для генерации одного ответа
     """
     stream: bool
     temperature: float
     maxTokens: int
+
 
 class YGPTMessage(BaseModel):
     """
@@ -32,14 +36,17 @@ class YGPTMessage(BaseModel):
     role: str
     text: str
 
+
 class YGPTRequest(BaseModel):
     """
     Класс запроса.
 
     Параметры:
-        modelUri (str): URL доступа к API YandexGPT содержащий имя используемой модели
+        modelUri (str): URL доступа к API YandexGPT содержащий
+          имя используемой модели
         completionOptions (YGPTCompletionOptions): параметры модели
-        messages (list[YGPTMessage]): список предыдущих сообщений пользователя и ассистента
+        messages (list[YGPTMessage]): список предыдущих сообщений
+          пользователя и ассистента
     """
     modelUri: str
     completionOptions: YGPTCompletionOptions
@@ -84,7 +91,7 @@ def chat(request: api.Request) -> str:
 
         # создаем список истории сообщений
         messages = []
-        
+
         add_system = True
         for message in request.history:
             # заполняем историю запросов
@@ -106,7 +113,7 @@ def chat(request: api.Request) -> str:
                     text=system_template
                 )
             )
-        
+
         if len(request.history) == 0:
             # если не было истории, то добавим префикс к запросу,
             # чтобы модель отвечала про Екатеринбург даже, если в запросе
@@ -141,7 +148,7 @@ def chat(request: api.Request) -> str:
             # логируем ответ
             try:
                 logger.info(response.json())
-            except:
+            except Exception:
                 logger.info(response.content)
             answer = ''
             result = response.json().get('result')
@@ -153,7 +160,9 @@ def chat(request: api.Request) -> str:
             return answer
         else:
             # логируем ошибку
-            logger.error(f'code: {response.status_code}, body: {response.content}')
+            logger.error(
+                f'code: {response.status_code}, body: {response.content}'
+            )
             raise Exception(response.status_code)
     else:
         # настройки не заполнены

@@ -16,9 +16,9 @@ app = FastAPI()
 async def root() -> str:
     """
     Обработчик корневого метода /
-    
+
     Возвращаемое значение:
-        str: 
+        str:
     """
     return ''
 
@@ -36,9 +36,9 @@ async def chat(request: api.Request) -> JSONResponse:
     """
 
     # авторизация по токену
-    if service.check_token(request.api_key) == False:
+    if not service.check_token(request.api_key):
         # если не прошла, то вернем ошибку 401
-        logger.error(f'Authentication failed')
+        logger.error('Authentication failed')
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content=api.Error(error='authentication failed').model_dump()
@@ -50,7 +50,7 @@ async def chat(request: api.Request) -> JSONResponse:
     if request.options is not None:
         if request.options.model == 'ollama':
             logger.info(f'Ollama: request: {request}')
-            
+
             # проверяем параметр embeddings
             if request.options.embeddings == 'prompt':
                 # формируем ответ с учетом локальных документов
@@ -64,10 +64,11 @@ async def chat(request: api.Request) -> JSONResponse:
                 embeddings.create_vectorestore()
                 answer = 'created'
             else:
-                # embeddings не заполнен, значит отправляем простой запрос к модели
+                # embeddings не заполнен, значит отправляем простой запрос
+                # к модели
                 answer = ollama.chat(request)
                 logger.info(f'Ollama: request: {request}')
-    
+
     if len(answer) == 0:
         # ответ не был сформирован ранее
         try:

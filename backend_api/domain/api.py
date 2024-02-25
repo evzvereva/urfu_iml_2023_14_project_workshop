@@ -11,6 +11,7 @@ class Role(str, Enum):
     user = 'user'
     assistant = 'assistant'
 
+
 class Message(BaseModel):
     """
     Класс с описанием сообщения.
@@ -21,6 +22,7 @@ class Message(BaseModel):
     """
     role: Role
     content: str
+
 
 class ModelOptions(BaseModel):
     """
@@ -36,6 +38,7 @@ class ModelOptions(BaseModel):
     model: str
     embeddings: str = ''
 
+
 class Request(BaseModel):
     """
     Класс запроса в методе chat API.
@@ -43,13 +46,15 @@ class Request(BaseModel):
     Параметры:
         api_key (str): ключ авторизации API
         prompt (str): текст запроса пользователя
-        history (list[Message]): список предыдущих сообщений пользователя и ассистента
+        history (list[Message]): список предыдущих сообщений пользователя
+         и ассистента
         options (ModelOptions): параметры модели
     """
     api_key: str
     prompt: str
     history: list[Message]
     options: ModelOptions | None = None
+
 
 class Response(BaseModel):
     """
@@ -60,10 +65,11 @@ class Response(BaseModel):
     """
     answer: str
 
+
 class Error(BaseModel):
     """
     Класс ошибки при выполненнии метода chat API.
-    
+
     Параметры:
         error (str): описание ошибки
     """

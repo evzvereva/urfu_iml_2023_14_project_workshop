@@ -58,7 +58,7 @@ def chat(request: api.Request) -> str:
 
     # шаблон по умолчанию
     prompt_template = '### Human: \n{0}\n### Assistant:\n'
-    
+
     if gpt4all_settings.get('prompt_template') is not None:
         prompt_template = gpt4all_settings.get('prompt_template')
 
@@ -76,7 +76,7 @@ def chat(request: api.Request) -> str:
                     'content': message.content
                 }
             )
-        
+
         # логирование для анализа
         if len(request.history) > 0:
             logger.info(f'Session: {model.current_chat_session}')
