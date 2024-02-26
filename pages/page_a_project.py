@@ -33,4 +33,4 @@ st.markdown("Инновационность данного проекта зак
             "которые включают описание и предоставляют по запросу пользователя адрес интересующего места.")
 
 st.markdown('''<p>Для удобства использования "Умный городской гид" через смартфон можно использовать мессенджер <a
-             href=https://t.me/PP14CityGuideBot>Telegram</a>.</p>''', unsafe_allow_html=True)
+                href=https://t.me/PP14CityGuideBot>Telegram</a>.</p>''', unsafe_allow_html=True)
