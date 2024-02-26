@@ -16,7 +16,7 @@ async def question_processing(user_id: int,
     Обработка запроса к GPT модели
     """
     if not question:
-        raise Exception(f'Вопрос не может быть пустым')
+        raise Exception('Вопрос не может быть пустым')
 
     logging.log(logging.INFO,
                 msg=f' ----> Поступил вопрос к ChatGPT: {question}')
@@ -36,8 +36,9 @@ async def question_processing(user_id: int,
         })
 
     response = requests.post(url=url, json=params)
-    logging.log(logging.INFO,
-                msg=f' ----> ChatGPT вернул {response.status_code}: {response.text}')
+    logging.log(
+        logging.INFO,
+        msg=f' ----> ChatGPT вернул {response.status_code}: {response.text}')
 
     if response.status_code != 200:
         raise Exception(f'{response.status_code}: {response.text}')

@@ -1,6 +1,3 @@
-import typing
-from typing import List
-
 from pydantic import BaseModel
 
 
@@ -26,7 +23,7 @@ class UserState:
     """
     API для работы с моделью состояний пользователя
     """
-    
+
     __users = {}
 
     def init_user(self, user_id: int, user_name: str) -> None:
