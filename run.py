@@ -65,7 +65,8 @@ def add_logo():
         """
         <style>
             [data-testid="stSidebarNav"] {
-                background-image: url(https://avatars.mds.yandex.net/i?id=5c17d44202c2993115ce701239c02807c5c846c3-10608704-images-thumbs&n=13);
+                background-image: url(
+                https://avatars.mds.yandex.net/i?id=5c17d44202c2993115ce701239c02807c5c846c3-10608704-images-thumbs&n=13);
                 background-repeat: no-repeat;
                 padding-top: 100px;
                 background-position: 1px 1px;
