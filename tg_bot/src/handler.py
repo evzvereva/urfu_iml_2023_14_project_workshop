@@ -13,8 +13,9 @@ from history import UserState
 from speechkit_connect import conv_voice_to_text
 from speechkit_connect import conv_text_to_voice
 
-LINK_ABOUT = 'https://urfu-iml-2023-14-project-workshop.streamlit.app/%D0%9A%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D0%B0'
-LINK_HELP = 'https://urfu-iml-2023-14-project-workshop.streamlit.app/%D0%9F%D0%BE%D0%BC%D0%BE%D1%89%D1%8C'
+SERVER_URL = 'https://urfu-iml-2023-14-project-workshop.streamlit.app'
+LINK_ABOUT = '/%D0%9A%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D0%B0'
+LINK_HELP = '/%D0%9F%D0%BE%D0%BC%D0%BE%D1%89%D1%8C'
 
 bot_router = Router()
 logger = logging.getLogger(__name__)
@@ -57,7 +58,7 @@ async def handle_cmd_help(msg: types.Message):
 
     # Отправка ответа пользователю
     await msg.answer(f'Более подробная информация доступна на '
-                     f'<a href="{LINK_HELP}">сайте</a> проекта')
+                     f'<a href="{SERVER_URL}{LINK_HELP}">сайте</a> проекта')
 
 
 @bot_router.message(Command("about"))
@@ -74,11 +75,11 @@ async def handle_cmd_about(msg: types.Message):
 
     # Отправка ответа пользователю
     await msg.answer(f'Более подробная информация доступна на '
-                     f'<a href="{LINK_ABOUT}">сайте</a> проекта')
+                     f'<a href="{SERVER_URL}{LINK_ABOUT}">сайте</a> проекта')
 
 
 @bot_router.message(Command("voice_out"))
-async def handle_cmd_about(msg: types.Message):
+async def handle_cmd_voice_out(msg: types.Message):
     """
     Обработка команды переключения режима озвучивания ТГ бота
     """
@@ -92,13 +93,13 @@ async def handle_cmd_about(msg: types.Message):
 
     # Отправка ответа пользователю
     if result:
-        await msg.answer(f'Режим озвучивания включен')
+        await msg.answer('Режим озвучивания включен')
     else:
-        await msg.answer(f'Режим озвучивания выключен')
+        await msg.answer('Режим озвучивания выключен')
 
 
 @bot_router.message(Command("clear"))
-async def handle_cmd_about(msg: types.Message):
+async def handle_cmd_clear(msg: types.Message):
     """
     Обработка команды очистки контекста сообщений ТГ бота
     """
@@ -111,7 +112,7 @@ async def handle_cmd_about(msg: types.Message):
     user_state.clear_history(msg.from_user.id)
 
     # Отправка ответа пользователю
-    await msg.answer(f'Контекст сброшен! Приятного общения 😀')
+    await msg.answer('Контекст сброшен! Приятного общения 😀')
 
 
 @bot_router.message()
@@ -125,7 +126,7 @@ async def handle_voice_message(msg: types.Message):
                    f'({msg.from_user.id})')
     logger.log(level=logging.INFO,
                msg=f' ----> Content Type - {msg.content_type}')
-    
+
     # Инициализация пользователя
     user_state.init_user(msg.from_user.id, msg.from_user.full_name)
 
@@ -133,7 +134,8 @@ async def handle_voice_message(msg: types.Message):
     # то вернем осообщение об ошибке обработки
     if msg.content_type != types.ContentType.TEXT \
             and msg.content_type != types.ContentType.VOICE:
-        await msg.answer(f'Я не умею обрабатывать сообщения типа {msg.content_type}')
+        await msg.answer(
+            f'Я не умею обрабатывать сообщения {msg.content_type}')
         return
 
     # Если пользователь ввел команду, которую мы не знаем,
@@ -147,7 +149,6 @@ async def handle_voice_message(msg: types.Message):
         return
 
     question: str = msg.text
-    answer: str = ''
 
     # Если получено голосовое сообщение, то его надо перевести в текст
     if msg.content_type == types.ContentType.VOICE:
@@ -158,7 +159,9 @@ async def handle_voice_message(msg: types.Message):
             await msg.bot.download_file(file_path, voice_ogg)
 
             # Конвертация голосового сообщения в текст
-            question = await conv_voice_to_text(voice_ogg.getbuffer().tobytes(), msg.voice.duration)
+            question = await conv_voice_to_text(
+                voice_ogg.getbuffer().tobytes(),
+                msg.voice.duration)
         except Exception as e:
             await msg.answer(f'Ошибка программы распознования голоса: {e}')
             return
@@ -168,9 +171,10 @@ async def handle_voice_message(msg: types.Message):
 
     try:
         # Обработка запроса к GPT модели
-        answer = await question_processing(msg.from_user.id,
-                                           question,
-                                           user_state.get_history(msg.from_user.id))
+        answer = await question_processing(
+            msg.from_user.id,
+            question,
+            user_state.get_history(msg.from_user.id))
     except Exception as e:
         await msg.answer(f'Ошибка получения ответа от помощника: {e}')
         return
@@ -184,7 +188,7 @@ async def handle_voice_message(msg: types.Message):
         message='answer'))
 
     try:
-        # Если у пользователя стоит режим озвучивания ответа,  
+        # Если у пользователя стоит режим озвучивания ответа,
         # то надо перевести текст в голос
         if user_state.get_user_voice_out(msg.from_user.id):
             await msg.bot.send_voice(
