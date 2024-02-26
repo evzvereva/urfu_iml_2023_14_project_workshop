@@ -1,0 +1,43 @@
+version: '3'
+services:
+  gpt-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        buildno: 1
+    image: gpt-api:latest
+    container_name: gpt-api
+    restart: always
+    command: uvicorn gpt-api:app --host 0.0.0.0 --port 8080
+    working_dir: /app
+    networks:
+      - network-gpt
+    ports:
+      - "8080:8080"
+    volumes:
+      - logs:/app/logs
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: always
+    networks:
+      - network-gpt
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  logs: 
+  ollama: 
+networks:
+  network-gpt:

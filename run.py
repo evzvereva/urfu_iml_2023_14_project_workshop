@@ -4,8 +4,17 @@ from pathlib import Path
 from streamlit.source_util import get_pages as st_get_pages
 from streamlit.source_util import _on_pages_changed as st_on_pages_changed
 
-# Заголовок страницы
-st.title("O Екатеринбурге")
+
+# Настройка отображения страницы
+def get_page_title_tab_browser(p_title, p_icon):
+    """
+    Настраивает название вкладки в веб-браузере текущей страницы
+    """
+    return st.set_page_config(page_title=p_title, page_icon=p_icon)
+
+
+get_page_title_tab_browser("O Екатеринбурге", "🏙️")
+
 
 def st_page_rename(pages_name: dict[str, str]) -> None:
     """
@@ -23,6 +32,7 @@ def st_page_rename(pages_name: dict[str, str]) -> None:
 
     st_on_pages_changed.send()
 
+
 def main_app() -> None:
     """
     Запуск основного приложения
@@ -39,7 +49,7 @@ main_app()
 
 # Открываем изображение и отображаем в веб-интерфейсе:
 img = Image.open("image_and_history_city/ekaterinburg.jpeg")
-st.image(img, width=700, caption="Екатеринбург, Россия")
+st.image(img, width=None, caption="Екатеринбург, Россия")
 
 # Чтение файла для дальнейшей загрузки информации о городе Екатеринбурге:
 with open("image_and_history_city/ekaterinburg.txt", "r") as file:
@@ -75,3 +85,13 @@ def add_logo():
 
 
 add_logo()
+
+
+def christmas_image():
+    """
+    Добавляет новогоднее гиф-изображение в sidebar под списком страниц
+    """
+    return st.sidebar.image("https://i.postimg.cc/J7s7jNGP/00.gif")
+
+
+christmas_image()
